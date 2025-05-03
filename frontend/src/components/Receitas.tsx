@@ -40,15 +40,17 @@ const ReceitasList = () => {
   }, []);
 
   return (
-    <div>
-      <h2>Lista de receitas</h2>
-      <div>
-        {receitas?.map((receita, index) => (
-          <div key={index}>{receita.titulo}</div>
-        ))}
+    <div className="w-full mt-24 flex justify-center items-center">
+      <div className="p-12 shadow-xl/20 w-[40vw] h-[50vh] outline outline-gray-300 flex flex-col items-center">
+        <h2>Lista de receitas</h2>
+        <div>
+          {receitas?.map((receita, index) => (
+            <div key={index}>{receita.titulo}</div>
+          ))}
+        </div>
+        <br/>
+        <AddReceitaForm addReceita={addReceita} />
       </div>
-      <br/>
-      <AddReceitaForm addReceita={addReceita} />
     </div>
   )
 }

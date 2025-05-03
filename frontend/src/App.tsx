@@ -1,18 +1,11 @@
-import './App.css'
-import ReceitasList from './components/Receitas';
+import { RouterProvider } from 'react-router-dom';
+import { router } from './router';
 
 function App() {
 
   return (
     <>
-      <div className="App">
-        <header className="App-header">
-          <h1>Gerenciamento de Receitas</h1>
-        </header>
-        <main>
-          <ReceitasList/>
-        </main>
-      </div>
+      <RouterProvider router={router} future={{ v7_startTransition: true, v7_relativeSplatPath: true  }} />
     </>
   )
 }
