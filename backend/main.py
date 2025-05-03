@@ -18,10 +18,10 @@ class ReceitaSchema(BaseModel):
   usuario_id: int 
   foto_url: str = None
 
-app = FastAPI()
+app = FastAPI(debug=True)
 
 origins = [
-  'http://localhost:3000/'
+  'http://localhost:5173'
 ]
 
 app.add_middleware(
@@ -29,7 +29,7 @@ app.add_middleware(
   allow_origins=origins,
   allow_credentials=True,
   allow_methods=["*"],
-  allow_headers=["*"]
+  allow_headers=["*"],
 )
 
 @app.get("/")
@@ -69,7 +69,7 @@ async def create_item(item: UsuarioSchema):
     cursor.execute(query, values)
     conn.commit()
     item_id = cursor.lastrowid
-    return {"id": item_id, **item.dict()}
+    return {"id": item_id, **item.model_dump()}
   except Exception as e:
     conn.rollback()
     raise HTTPException(status_code=500, detail=str(e))
