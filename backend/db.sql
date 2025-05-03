@@ -19,6 +19,3 @@ CREATE TABLE receitas (
 
   FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
-
-select * from usuarios;
-select * from receitas;
