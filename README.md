@@ -5,8 +5,8 @@ CRUD gerenciamento de receitas
 - [x] Python
 - [x] React
 - [x] TypeScript
-- [ ] APIs REST
-- [ ] Banco de Dados PostgreSQL
+- [x] APIs REST
+- [x] Banco de Dados PostgreSQL
 - [ ] Amazon AWS 
 - [x] Git
 
