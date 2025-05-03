@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 
-from routers import user
 from routers import receitas
 from routers import auth
 
@@ -26,7 +25,6 @@ app.add_middleware(
 def welcome():
   return 'welcome'
 
-app.include_router(user.router, prefix="/usuarios")
 app.include_router(receitas.router, prefix="/receitas")
 app.include_router(auth.router, prefix="/auth")
 
