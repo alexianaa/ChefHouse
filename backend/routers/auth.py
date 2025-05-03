@@ -8,6 +8,7 @@ from database import get_db
 from auth.services import (
     create_access_token,
     get_current_user,
+    get_current_active_user,
     verify_password,
     get_password_hash,
     ACCESS_TOKEN_EXPIRE_MINUTES
@@ -53,12 +54,27 @@ def login_para_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
     access_token = create_access_token(
         data={"sub": usuario.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.get("/eu", response_model=Usuario)
-async def ler_usuario_atual(current_user: Usuario):
-    return current_user
+@router.get("/{id}", response_model=Usuario)
+async def ler_usuario_atual(id: int, db: Session = Depends(get_db)):
+  usuario = db.query(UsuarioModel).filter(UsuarioModel.id == id).first()
+  if usuario:
+    return usuario
+  else:
+    raise HTTPException(
+      status_code=status.HTTP_404_UNAUTHORIZED,
+      detail="Usuário não encontrado"
+    )
+
+@router.get("/usuarios/me")
+async def read_usuario_logado(current_user: Usuario = Depends(get_current_active_user)):
+  return {
+    "id": current_user.id,
+    "nome": current_user.nome,
+    "email": current_user.email
+  }
