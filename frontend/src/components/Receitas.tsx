@@ -27,7 +27,7 @@ const ReceitasList = () => {
       await api.post('/receitas', {
         titulo: receitaTitulo,
         ingredientes: receitaIngredientes,
-        usuario_id: 1
+        usuario_id: 1 // substituir futuramente
       });
       fetchReceitas();
     } catch (error) {
