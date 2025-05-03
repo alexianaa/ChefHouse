@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from database import get_db
-from schemas import UsuarioSchema
-from models import Usuarios
+from auth.schemas import UsuarioSchema
+from models import Usuario
 
 router = APIRouter()
 
@@ -13,7 +13,7 @@ def create_item(
   usuario: UsuarioSchema, 
   db: Session = Depends(get_db)
 ):
-  db_receita = Usuarios(**usuario.dict())
+  db_receita = Usuario(**usuario.dict())
     
   db.add(db_receita)
   db.commit()

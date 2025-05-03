@@ -4,20 +4,20 @@ from typing import List, Dict, Any
 
 from database import get_db
 from schemas import ReceitaSchema, ReceitaUpdate
-from models import Receitas
+from models import Receita
 
 router = APIRouter()
 
 @router.get("/")
 def listar_receitas(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return db.query(Receitas).offset(skip).limit(limit).all()
+    return db.query(Receita).offset(skip).limit(limit).all()
 
 @router.post("/")
 def create_item(
   receita: ReceitaSchema, 
   db: Session = Depends(get_db)
 ):
-  db_receita = Receitas(
+  db_receita = Receita(
     **receita.dict()
   )
     
@@ -28,7 +28,7 @@ def create_item(
 
 @router.get("/{receita_id}")
 def ler_receita(receita_id: int, db: Session = Depends(get_db)):
-    receita = db.query(Receitas).filter(Receitas.id == receita_id).first()
+    receita = db.query(Receita).filter(Receita.id == receita_id).first()
     if not receita:
         raise HTTPException(status_code=404, detail="Receita não encontrada")
     return receita
@@ -39,7 +39,7 @@ def ler_receita(
     receita_id: int, 
     db: Session = Depends(get_db),
   ):
-    receita = db.query(Receitas).filter(Receitas.id == receita_id).first()
+    receita = db.query(Receita).filter(Receita.id == receita_id).first()
     if not receita:
       raise HTTPException(status_code=404, detail="Receita não encontrada")
       return
@@ -56,7 +56,7 @@ def ler_receita(
 
 @router.patch("/{receita_id}")
 def ler_receita(receita_update: ReceitaUpdate, receita_id: int, db: Session = Depends(get_db)):
-    receita = db.query(Receitas).filter(Receitas.id == receita_id).first()
+    receita = db.query(Receita).filter(Receita.id == receita_id).first()
     if not receita:
         raise HTTPException(status_code=404, detail="Receita não encontrada")
         return
@@ -76,7 +76,7 @@ def ler_receita(receita_update: ReceitaUpdate, receita_id: int, db: Session = De
 
 @router.delete("/{receita_id}")
 def ler_receita(receita_id: int, db: Session = Depends(get_db)):
-    receita = db.query(Receitas).filter(Receitas.id == receita_id).first()
+    receita = db.query(Receita).filter(Receita.id == receita_id).first()
     if not receita:
       raise HTTPException(status_code=404, detail="Receita não encontrada")
       return

@@ -20,6 +20,13 @@ pip install -r .\requirements.txt
 
 4. Preencher .env
 
+- gerar o SECRET_KEY no terminal do python:
+
+```bash
+import secrets
+print(secrets.token_urlsafe(32))
+```
+
 5. Rodar aplicação
 
 ```bash
