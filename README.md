@@ -11,6 +11,6 @@ CRUD gerenciamento de receitas
 - [x] Git
 
 
-[Backend](./backend/README.md)
+Verifique aqui mais informações sobre a [api](./backend/README.md)
 
-[Frontend](./frontend/README.md)
+Verifique aqui mais informações sobre o [frontend](./frontend/README.md)
