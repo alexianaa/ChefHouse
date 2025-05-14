@@ -1,27 +1,55 @@
-import React, {useState} from 'react';
+import React, {useState, FormEvent} from 'react';
 import close from '../assets/close.svg';
 
 interface PropsInterface {
-  addReceita: (
-    receitaTitulo: string, 
-    receitaIngredientes: string
-  ) => Promise<void>;
+  addReceita: (receita: Receita) => Promise<void>;
   open: boolean; 
   setIsOpen: () => void;
 }
 
-const AddReceitaForm: React.FC<PropsInterface> = ( {addReceita, open, setIsOpen} ) => {
-  const [receitaNome, setReceitaNome] = useState('');
-  const [receitaIngredientes, setReceitaIngredientes] = useState('');
+interface Receita {
+  titulo: string;
+  ingredientes: string;
+  preparo: string;
+  tempo_minutos: number;
+  foto_url: string;
+}
 
-  const handleSubmit = (event: { preventDefault: () => void; }) => {
-    event.preventDefault();
-    if(receitaNome && receitaIngredientes){
-      addReceita(receitaNome, receitaIngredientes);
-      setReceitaIngredientes(receitaIngredientes);
-      setReceitaNome('');
-      setReceitaIngredientes('');
-    }
+const AddReceitaForm: React.FC<PropsInterface> = ( {addReceita, open, setIsOpen} ) => {
+  const [formData, setFormData] = useState<Receita>({
+    titulo: '',
+    ingredientes: '',
+    preparo: '',
+    tempo_minutos: 0,
+    foto_url: '',
+  });
+
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === 'tempo_minutos' ? Number(value) : value,
+    }));
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    
+    addReceita(formData);
+    //console.log('Receita cadastrada:', formData);
+
+    // Resetar o formulário
+    setFormData({
+      titulo: '',
+      ingredientes: '',
+      preparo: '',
+      tempo_minutos: 0,
+      foto_url: '',
+    });
   };
 
   if(open){
@@ -40,17 +68,48 @@ const AddReceitaForm: React.FC<PropsInterface> = ( {addReceita, open, setIsOpen}
           <form onSubmit={handleSubmit} className="flex flex-col items-center w-full px-24">
             <input
               type="text"
-              value={receitaNome}
-              onChange={(e) => setReceitaNome(e.target.value)}
+              name="titulo"
+              value={formData.titulo}
+              required
+              onChange={handleChange}
               placeholder="Digite o titulo da receita"
               className="outline p-2 w-full mb-2"
             />
             <br/>
             <input
               type="text"
-              value={receitaIngredientes}
-              onChange={(e) => setReceitaIngredientes(e.target.value)}
+              name="ingredientes"
+              value={formData.ingredientes}
+              required
+              onChange={handleChange}
               placeholder="Digite os ingredientes da receita"
+              className="outline p-2 w-full mb-2"
+            />
+            <br/>
+            <input
+              type="text"
+              name="preparo"
+              value={formData.preparo}
+              onChange={handleChange}
+              placeholder="Explique o preparo da receita"
+              className="outline p-2 w-full mb-2"
+            />
+            <br/>
+            <input
+              type="number"
+              name="tempo_minutos"
+              value={formData.tempo_minutos}
+              onChange={handleChange}
+              placeholder="Tempo em minutos do preparo"
+              className="outline p-2 w-full mb-2"
+            />
+            <br/>
+            <input
+              type="text"
+              name="foto_url"
+              value={formData.foto_url}
+              onChange={handleChange}
+              placeholder="Url para foto da receita"
               className="outline p-2 w-full mb-2"
             />
             <br/>

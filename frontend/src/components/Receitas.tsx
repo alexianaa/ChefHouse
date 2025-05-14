@@ -35,11 +35,12 @@ const ReceitasList = () => {
     if(user) setUser(JSON.parse(user));
   }
 
-  const addReceita = async (receitaTitulo: string, receitaIngredientes: string) => {
+  const addReceita = async (receita: Receita) => {
+    console.log('aqui ',JSON.stringify(receita, null, 2));
+
     try {
       await api.post('/receitas', {
-        titulo: receitaTitulo,
-        ingredientes: receitaIngredientes,
+        ...receita,
         usuario_id: user?.id
       });
       fetchReceitas();
