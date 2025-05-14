@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react';
 import api from '../api';
 import AddReceitaForm from './AddReceitaForm';
+import default_img from '../assets/default.png'; 
 
 interface Receita {
   titulo: string,
@@ -58,15 +59,33 @@ const ReceitasList = () => {
     <div className="w-full mt-16 flex flex-col items-center">
       <div className="shadow-xl/20 w-[50vw] h-[60vh] outline outline-gray-300 flex flex-col items-center rounded">
         <div className="bg-gray-100 w-full h-16 border-b-2 border-gray-300 flex items-center justify-between p-4">
-          <span>Lista de Receitas do(a) {user?.nome} </span>
+          <span>Lista de Receitas</span>
           <button onClick={() => setIsOpen(true)} className="px-8 py-2 rounded font-semibold transition duration-150 ease-in-out cursor-pointer bg-purple-600 hover:bg-purple-500 text-white">
             Nova receita
           </button>
         </div>
-        <div className="p-8">
+        <div className="p-8 w-full">
           <div>
             {receitas?.map((receita, index) => (
-              <div key={index}>{receita.titulo}</div>
+              <div key={index} className="w-full outline outline-gray-300 bg-gray-100 rounded mb-4 flex justify-between items-center hover:shadow-lg">
+                <div className="flex">
+                  <div className="flex pr-2 ">
+                    <img src={receita.foto_url? receita.foto_url : default_img} className="w-24 h-16 rounded" />
+                  </div>
+                  <div>
+                    <span className="font-bold">Título:</span> <span>{receita.titulo}</span>
+                    <br/>
+                    <span className="font-bold">Preparo: </span> 
+                    {receita.tempo_minutos > 0 && (
+                      <span>{receita.tempo_minutos} minutos</span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-4 pr-4">
+                  <a className="cursor-pointer">Ver</a>
+                  <a className="cursor-pointer">Excluir</a>
+                </div>
+              </div>
             ))}
           </div> 
         </div>
