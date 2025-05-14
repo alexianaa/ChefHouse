@@ -18,10 +18,12 @@ from auth.schemas import UsuarioCreate, Usuario, Token
 
 router = APIRouter()
 
+# DEFAULT
 @router.get("/")
 async def receitas_protegidas(current_user: Usuario = Depends(get_current_user)):
   return {"mensagem": "Esta é uma rota protegida", "usuario": current_user.nome}
 
+# STORE USER
 @router.post("/registrar", response_model=Usuario)
 def registrar_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db)):
     
@@ -41,6 +43,7 @@ def registrar_usuario(usuario: UsuarioCreate, db: Session = Depends(get_db)):
     db.refresh(db_usuario)
     return db_usuario
 
+# LOGIN
 @router.post("/token", response_model=Token)
 def login_para_token(
     form_data: OAuth2PasswordRequestForm = Depends(), 
@@ -58,8 +61,9 @@ def login_para_token(
     access_token = create_access_token(
         data={"sub": usuario.email}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"user": usuario, "access_token": access_token, "token_type": "bearer"}
 
+# GET ONE USER
 @router.get("/{id}", response_model=Usuario)
 async def ler_usuario_atual(id: int, db: Session = Depends(get_db)):
   usuario = db.query(UsuarioModel).filter(UsuarioModel.id == id).first()
@@ -71,6 +75,7 @@ async def ler_usuario_atual(id: int, db: Session = Depends(get_db)):
       detail="Usuário não encontrado"
     )
 
+# GET LOGGED USER
 @router.get("/usuarios/me")
 async def read_usuario_logado(current_user: Usuario = Depends(get_current_active_user)):
   return {

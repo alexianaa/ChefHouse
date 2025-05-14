@@ -26,6 +26,7 @@ class Usuario(UsuarioBase):
     from_attributes = True
 
 class Token(BaseModel):
+  user: Usuario
   access_token: str
   token_type: str
 

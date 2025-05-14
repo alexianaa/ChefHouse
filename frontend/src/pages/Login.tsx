@@ -2,7 +2,6 @@ import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios, { AxiosError } from 'axios';
 
-
 interface LoginRequest {
   username: string;
   password: string;
@@ -10,6 +9,12 @@ interface LoginRequest {
 
 type ErrorResponse = {
   message: string;
+};
+
+interface User {
+  id: string,
+  nome: string,
+  email: string
 };
 
 
@@ -20,6 +25,7 @@ function Login() {
   });
   const [erro, setErro] = useState<string>('');
   const [carregando, setCarregando] = useState<boolean>(false);
+
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,23 +36,31 @@ function Login() {
     }));
   };
 
+
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setCarregando(true);
     setErro('');
     
     try {
-      //console.log('Dados sendo enviados: ', formData);
-
-      const response = await axios.post<{ access_token: string }>(
+      
+      // faz login
+      const response = await axios.post<{ user: User, token: string }>(
         'http://localhost:8000/auth/token',
         formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         }
       });
+      const { user, token } = response.data;
+      localStorage.setItem('access_token', token);
+      localStorage.setItem('user', JSON.stringify({
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+      }));
 
-      localStorage.setItem('access_token', response.data.access_token);
       navigate('/home');
       
     } catch (error) {

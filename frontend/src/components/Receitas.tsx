@@ -10,8 +10,16 @@ interface Receita {
   foto_url: string
 }
 
+interface User {
+  id: string,
+  nome: string,
+  email: string
+}
+
 const ReceitasList = () => {
   const [receitas, setReceitas] = useState<Receita[]>([]);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [user, setUser] = useState<User>();
 
   const fetchReceitas = async () => {
     try {
@@ -22,12 +30,17 @@ const ReceitasList = () => {
     }
   }
 
+  function getUser(){
+    let user = localStorage.getItem('user');
+    if(user) setUser(JSON.parse(user));
+  }
+
   const addReceita = async (receitaTitulo: string, receitaIngredientes: string) => {
     try {
       await api.post('/receitas', {
         titulo: receitaTitulo,
         ingredientes: receitaIngredientes,
-        usuario_id: 1 // substituir futuramente
+        usuario_id: user?.id
       });
       fetchReceitas();
     } catch (error) {
@@ -36,21 +49,29 @@ const ReceitasList = () => {
   }
 
   useEffect(() => {
+    getUser();
     fetchReceitas();
   }, []);
 
   return (
-    <div className="w-full mt-24 flex justify-center items-center">
-      <div className="p-12 shadow-xl/20 w-[40vw] h-[50vh] outline outline-gray-300 flex flex-col items-center">
-        <h2>Lista de receitas</h2>
-        <div>
-          {receitas?.map((receita, index) => (
-            <div key={index}>{receita.titulo}</div>
-          ))}
+    <div className="w-full mt-16 flex flex-col items-center">
+      <div className="shadow-xl/20 w-[50vw] h-[60vh] outline outline-gray-300 flex flex-col items-center rounded">
+        <div className="bg-gray-100 w-full h-16 border-b-2 border-gray-300 flex items-center justify-between p-4">
+          <span>Lista de Receitas do(a) {user?.nome} </span>
+          <button onClick={() => setIsOpen(true)} className="px-8 py-2 rounded font-semibold transition duration-150 ease-in-out cursor-pointer bg-purple-600 hover:bg-purple-500 text-white">
+            Nova receita
+          </button>
         </div>
-        <br/>
-        <AddReceitaForm addReceita={addReceita} />
+        <div className="p-8">
+          <div>
+            {receitas?.map((receita, index) => (
+              <div key={index}>{receita.titulo}</div>
+            ))}
+          </div> 
+        </div>
       </div>
+
+      <AddReceitaForm addReceita={addReceita} open={isOpen} setIsOpen={() => setIsOpen(!isOpen)} />
     </div>
   )
 }
