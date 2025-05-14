@@ -2,8 +2,10 @@ import {useState, useEffect} from 'react';
 import api from '../api';
 import AddReceitaForm from './AddReceitaForm';
 import default_img from '../assets/default.png'; 
+import { TrashIcon } from '@heroicons/react/24/solid'
 
 interface Receita {
+  id: number | null,
   titulo: string,
   ingredientes: string,
   preparo: string,
@@ -37,8 +39,6 @@ const ReceitasList = () => {
   }
 
   const addReceita = async (receita: Receita) => {
-    console.log('aqui ',JSON.stringify(receita, null, 2));
-
     try {
       await api.post('/receitas', {
         ...receita,
@@ -47,6 +47,18 @@ const ReceitasList = () => {
       fetchReceitas();
     } catch (error) {
       console.log('Erro adicionar receita: ', error);
+    }
+  }
+
+  const handleDelete = async(id: number | null) => {
+    const confirmar = window.confirm("Tem certeza que deseja excluir esta receita?");
+    if (!confirmar) return;
+    
+    try {
+      await api.delete(`/receitas/${id}`);
+      fetchReceitas();
+    } catch (error) {
+      console.log('Erro excluir receita: ', error);
     }
   }
 
@@ -68,22 +80,27 @@ const ReceitasList = () => {
           <div>
             {receitas?.map((receita, index) => (
               <div key={index} className="w-full outline outline-gray-300 bg-gray-100 rounded mb-4 flex justify-between items-center hover:shadow-lg">
-                <div className="flex">
-                  <div className="flex pr-2 ">
-                    <img src={receita.foto_url? receita.foto_url : default_img} className="w-24 h-16 rounded" />
+                <div className="w-full flex items-center justify-between">
+                  <div className="flex">
+                    <div className="flex pr-2 ">
+                      <img src={receita.foto_url? receita.foto_url : default_img} className="w-32 h-24 rounded-s" />
+                    </div>
+                    <div>
+                      <span className="font-bold">Título:</span> <span>{receita.titulo}</span>
+                      <br/>
+                      <span className="font-bold">Tempo de preparo: </span> 
+                      {receita.tempo_minutos > 0 && (
+                        <span>{receita.tempo_minutos} minutos</span>
+                      )}
+                      <br/>
+                      <span className="font-bold">Modo de preparo: </span> <span>{receita.preparo}</span>
+                      <br/>
+                      <span className="font-bold">Ingredientes: </span> <span>{receita.ingredientes}</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="font-bold">Título:</span> <span>{receita.titulo}</span>
-                    <br/>
-                    <span className="font-bold">Preparo: </span> 
-                    {receita.tempo_minutos > 0 && (
-                      <span>{receita.tempo_minutos} minutos</span>
-                    )}
+                  <div className="pr-8">
+                    <TrashIcon onClick={() => handleDelete(receita.id)} className="w-6 text-red-700 hover:w-8 duration-300 ease-in-out cursor-pointer" />
                   </div>
-                </div>
-                <div className="flex gap-4 pr-4">
-                  <a className="cursor-pointer">Ver</a>
-                  <a className="cursor-pointer">Excluir</a>
                 </div>
               </div>
             ))}

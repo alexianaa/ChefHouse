@@ -1,12 +1,36 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Response, FastAPI, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import List, Dict, Any
+import boto3
+import uuid
+
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 from database import get_db
 from schemas import ReceitaSchema, ReceitaUpdate
 from models import Receita
 
 router = APIRouter()
+
+s3 = boto3.client(
+  "s3",
+  aws_access_key_id= os.getenv('ACCESS_KEY'), 
+  aws_secret_access_key=os.getenv('SECRET_KEY'),
+  region_name=os.getenv('REGION')
+)
+
+BUCKET_NAME = "chefhouse-2"
+
+@router.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+  file_extension = file.filename.split(".")[-1]
+  key = f"{uuid.uuid4()}.{file_extension}"
+
+  s3.upload_fileobj(file.file, BUCKET_NAME, key, ExtraArgs={"ContentType": file.content_type})
+  file_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{key}"
+  return {"url": file_url}
 
 @router.get("/")
 def listar_receitas(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):

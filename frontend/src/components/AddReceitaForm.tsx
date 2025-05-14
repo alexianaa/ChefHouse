@@ -8,6 +8,7 @@ interface PropsInterface {
 }
 
 interface Receita {
+  id: number | null;
   titulo: string;
   ingredientes: string;
   preparo: string;
@@ -17,6 +18,7 @@ interface Receita {
 
 const AddReceitaForm: React.FC<PropsInterface> = ( {addReceita, open, setIsOpen} ) => {
   const [formData, setFormData] = useState<Receita>({
+    id: null,
     titulo: '',
     ingredientes: '',
     preparo: '',
@@ -44,6 +46,7 @@ const AddReceitaForm: React.FC<PropsInterface> = ( {addReceita, open, setIsOpen}
 
     // Resetar o formulário
     setFormData({
+      id: null,
       titulo: '',
       ingredientes: '',
       preparo: '',
