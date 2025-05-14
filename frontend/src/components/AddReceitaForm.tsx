@@ -1,8 +1,9 @@
-import React, {useState, FormEvent} from 'react';
+import React, {useState, FormEvent, useEffect} from 'react';
 import close from '../assets/close.svg';
+import api from '../api';
 
 interface PropsInterface {
-  addReceita: (receita: Receita) => Promise<void>;
+  fetchReceitas: () => Promise<void>;
   open: boolean; 
   setIsOpen: () => void;
 }
@@ -13,19 +14,63 @@ interface Receita {
   ingredientes: string;
   preparo: string;
   tempo_minutos: number;
-  foto_url: string;
+};
+
+interface User {
+  id: string,
+  nome: string,
+  email: string
 }
 
-const AddReceitaForm: React.FC<PropsInterface> = ( {addReceita, open, setIsOpen} ) => {
+
+const AddReceitaForm: React.FC<PropsInterface> = ( {fetchReceitas, open, setIsOpen} ) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [user, setUser] = useState<User>();
+  const [loading, setLoading] = useState<boolean>(false);
+
   const [formData, setFormData] = useState<Receita>({
     id: null,
     titulo: '',
     ingredientes: '',
     preparo: '',
-    tempo_minutos: 0,
-    foto_url: '',
+    tempo_minutos: 0
   });
 
+  function getUser(){
+    let user = localStorage.getItem('user');
+    if(user) setUser(JSON.parse(user));
+  }
+
+  useEffect(() => {
+    getUser();
+  }, []);
+
+
+  const addReceita = async (formData: Receita) => {
+    let fotoUrl = '';
+
+    try {
+      setLoading(true);
+      if(selectedFile){
+        const uploadData = new FormData();
+        uploadData.append('file', selectedFile);
+        const response = await api.post('/receitas/upload',uploadData);
+        fotoUrl = await response.data.url;
+      }
+  
+        await api.post('/receitas', {
+          ...formData,
+          foto_url: fotoUrl,
+          usuario_id: user?.id
+        });
+        
+        fetchReceitas();
+        setLoading(false);
+        setIsOpen();
+    } catch (error) {
+      console.log('Erro adicionar receita: ', error);
+    }
+  }
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -50,9 +95,15 @@ const AddReceitaForm: React.FC<PropsInterface> = ( {addReceita, open, setIsOpen}
       titulo: '',
       ingredientes: '',
       preparo: '',
-      tempo_minutos: 0,
-      foto_url: '',
+      tempo_minutos: 0
     });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
   };
 
   if(open){
@@ -106,7 +157,7 @@ const AddReceitaForm: React.FC<PropsInterface> = ( {addReceita, open, setIsOpen}
               placeholder="Tempo em minutos do preparo"
               className="outline p-2 w-full mb-2"
             />
-            <br/>
+            {/* <br/>
             <input
               type="text"
               name="foto_url"
@@ -114,14 +165,32 @@ const AddReceitaForm: React.FC<PropsInterface> = ( {addReceita, open, setIsOpen}
               onChange={handleChange}
               placeholder="Url para foto da receita"
               className="outline p-2 w-full mb-2"
-            />
+            /> */}
             <br/>
-            <button 
-              type="submit" 
-              className="px-8 py-2 rounded font-semibold transition duration-150 ease-in-out cursor-pointer bg-purple-600 hover:bg-purple-500 text-white" 
-            >
-              Cadastrar Receita
-            </button>
+            <input 
+              type="file" 
+              accept="image/*" 
+              id="foto"
+              onChange={handleFileChange} 
+              className="hidden"
+            />
+            <label htmlFor="foto" className="outline p-2 w-full mb-2 cursor-pointer">
+              Enviar arquivo: {selectedFile?.name && <span> {selectedFile.name}</span>}
+            </label>
+            <br/>
+
+            {loading && (
+              <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            )}
+
+            {!loading && (
+              <button 
+                type="submit" 
+                className="px-8 py-2 rounded font-semibold transition duration-150 ease-in-out cursor-pointer bg-purple-600 hover:bg-purple-500 text-white" 
+              >
+                Cadastrar Receita
+              </button>
+            )}
           </form>
         </div>
       </div>

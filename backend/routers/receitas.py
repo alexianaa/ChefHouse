@@ -28,7 +28,7 @@ async def upload_file(file: UploadFile = File(...)):
   file_extension = file.filename.split(".")[-1]
   key = f"{uuid.uuid4()}.{file_extension}"
 
-  s3.upload_fileobj(file.file, BUCKET_NAME, key, ExtraArgs={"ContentType": file.content_type})
+  s3.upload_fileobj(file.file, BUCKET_NAME, key, ExtraArgs={"ContentType": file.content_type, "ACL": "public-read"})
   file_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{key}"
   return {"url": file_url}
 
