@@ -12,6 +12,11 @@ from database import get_db
 from schemas import ReceitaSchema, ReceitaUpdate
 from models import Receita
 
+from auth.schemas import Usuario
+from auth.services import (
+  get_current_user,
+)
+
 router = APIRouter()
 
 s3 = boto3.client(
@@ -23,6 +28,7 @@ s3 = boto3.client(
 
 BUCKET_NAME = "chefhouse-2"
 
+# UPLOAD DE FOTO NA AWS
 @router.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
   file_extension = file.filename.split(".")[-1]
@@ -32,10 +38,12 @@ async def upload_file(file: UploadFile = File(...)):
   file_url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{key}"
   return {"url": file_url}
 
+# TODAS AS RECEITAS
 @router.get("/")
-def listar_receitas(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return db.query(Receita).offset(skip).limit(limit).all()
+def listar_receitas(skip: int = 0, limit: int = 10, current_user: Usuario = Depends(get_current_user), db: Session = Depends(get_db)):
+    return db.query(Receita).filter(Receita.usuario_id == current_user.id).offset(skip).limit(limit).all()
 
+# CADASTRA RECEITA
 @router.post("/")
 def create_item(
   receita: ReceitaSchema, 
@@ -50,6 +58,7 @@ def create_item(
   db.refresh(db_receita)
   return db_receita
 
+# RETORNA UMA RECEITA
 @router.get("/{receita_id}")
 def ler_receita(receita_id: int, db: Session = Depends(get_db)):
     receita = db.query(Receita).filter(Receita.id == receita_id).first()
@@ -57,6 +66,7 @@ def ler_receita(receita_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Receita não encontrada")
     return receita
 
+# CADASTRA RECEITA
 @router.put("/{receita_id}")
 def ler_receita( 
     receita_update: ReceitaSchema, 
@@ -78,6 +88,7 @@ def ler_receita(
     db.refresh(receita)
     return receita
 
+# ATUALIZA RECEITA
 @router.patch("/{receita_id}")
 def ler_receita(receita_update: ReceitaUpdate, receita_id: int, db: Session = Depends(get_db)):
     receita = db.query(Receita).filter(Receita.id == receita_id).first()
@@ -98,6 +109,7 @@ def ler_receita(receita_update: ReceitaUpdate, receita_id: int, db: Session = De
     db.refresh(receita)
     return receita
 
+# APAGA RECEITA
 @router.delete("/{receita_id}")
 def ler_receita(receita_id: int, db: Session = Depends(get_db)):
     receita = db.query(Receita).filter(Receita.id == receita_id).first()

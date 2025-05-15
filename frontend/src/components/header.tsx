@@ -23,7 +23,8 @@ export const Header = () => {
   }, []);
 
   const handleClick = () => {
-    localStorage.setItem('access_token', '');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
     navigate('/login');
   };
 

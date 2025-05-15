@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import { ReactNode } from 'react';
 import ReadReceita from './pages/ReadReceita';
 import Layout from './components/Layout';
+import Cadastro from './pages/Cadastro';
 
 // Componente para rotas protegidas
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
@@ -27,6 +28,10 @@ export const router = createBrowserRouter(
     {
       path: '/login',
       element: <Login />,
+    },
+    {
+      path: '/cadastro',
+      element: <Cadastro />,
     },
     {
       path: '/',

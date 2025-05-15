@@ -1,30 +1,27 @@
-import { FormEvent, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from "axios";
+import { FormEvent, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api";
 
-interface LoginRequest {
-  username: string;
-  password: string;
-}
+interface User {
+  nome: string,
+  email: string,
+  senha: string
+};
 
 type ErrorResponse = {
   message: string;
 };
 
-interface User {
-  id: string,
-  nome: string,
-  email: string
-};
-
-
-function Login() {
-  const [formData, setFormData] = useState<LoginRequest>({
-    username: '',
-    password: ''
-  });
+function Cadastro() {
+  
   const [erro, setErro] = useState<string>('');
   const [carregando, setCarregando] = useState<boolean>(false);
+  const [formData, setFormData] = useState<User>({
+    nome: '',
+    email: '',
+    senha: ''
+  });
 
   const navigate = useNavigate();
 
@@ -36,8 +33,6 @@ function Login() {
     }));
   };
 
-
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setCarregando(true);
@@ -45,30 +40,15 @@ function Login() {
     
     try {
       
-      // faz login
-      const response = await axios.post<{ user: User, access_token: string }>(
-        'http://localhost:8000/auth/token',
-        formData, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      });
-      const { user, access_token } = response.data;
-      localStorage.setItem('access_token', access_token);
-      localStorage.setItem('user', JSON.stringify({
-        id: user.id,
-        nome: user.nome,
-        email: user.email,
-      }));
-
-      navigate('/home');
+      await api.post('/auth/registrar',formData);
+      alert('Cadastro realizado com sucesso!');
+      navigate('/login');
       
     } catch (error) {
       const axiosError = error as AxiosError<ErrorResponse>;
-      console.log(error)
       setErro(
         axiosError.response?.data?.message || 
-        'Erro ao fazer login. Tente novamente.'
+        'Erro ao fazer cadastro. Tente novamente.'
       );
     } finally {
       setCarregando(false);
@@ -77,33 +57,44 @@ function Login() {
 
   return (
     <>
-      <div className="w-full h-screen flex justify-center items-center bg-linear-to-t from-sky-500 to-indigo-500">
+      <div className="w-full h-screen flex justify-center items-center bg-linear-to-t from-sky-700 to-indigo-700">
         <div className="w-[40vw] h-[60vh] bg-white rounded-lg p-8 shadow-2xl flex items-center justify-center flex-col">
-          <h1 className="text-3xl font-bold underline mb-4">Login</h1>
+          <h1 className="text-3xl font-bold underline mb-4">Cadastro</h1>
           <p>Bem vindo(a) ao ChefHouse</p>
           {erro && (
             <div className="mb-4 p-2 bg-red-100 text-red-700 rounded text-center">
               {erro}
             </div>
           )}
+
           <form onSubmit={handleSubmit} className="w-full block px-16 text-lg">
-            <label htmlFor="username" className="w-full font-semibold" >Email</label>
+            <label htmlFor="nome" className="w-full font-semibold" >Nome</label>
             <input
               className="w-full p-2 outline rounded mb-2"
-              id="username"
-              name="username"
+              id="nome"
+              name="nome"
               type="text"
-              value={formData.username}
+              value={formData.nome}
               onChange={handleChange}
               required
             />
-            <label htmlFor="password" className="w-full font-semibold" >Senha</label>
+            <label htmlFor="email" className="w-full font-semibold" >Email</label>
+            <input
+              className="w-full p-2 outline rounded mb-2"
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+            <label htmlFor="senha" className="w-full font-semibold" >Senha</label>
             <input
               className="w-full p-2 outline rounded mb-6"
-              id="password"
-              name="password"
+              id="senha"
+              name="senha"
               type="password"
-              value={formData.password}
+              value={formData.senha}
               onChange={handleChange}
               required
             />
@@ -117,24 +108,15 @@ function Login() {
                     : 'bg-blue-600 hover:bg-blue-500'
                 }`}
               >
-                {carregando ? 'Carregando...' : 'Entrar'}
+                {carregando ? 'Carregando...' : 'Cadastrar'}
               </button>
             </div>
           </form>
-          <a 
-            href="/cadastro" 
-            className="mt-4 text-blue-600 hover:underline text-sm md:text-base"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate('/cadastro');
-            }}
-          >
-            Não tem uma conta? Cadastre-se
-          </a>
+
         </div>
       </div>
     </>
   )
 }
 
-export default Login
+export default Cadastro
