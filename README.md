@@ -7,8 +7,12 @@ CRUD gerenciamento de receitas
 - [x] TypeScript
 - [x] APIs REST
 - [x] Banco de Dados PostgreSQL
-- [ ] Amazon AWS 
+- [x] Amazon AWS 
 - [x] Git
+
+![página de login](./login.png)
+
+![página inicial](./home.png)
 
 
 Verifique aqui mais informações sobre a [api](./backend/README.md)
